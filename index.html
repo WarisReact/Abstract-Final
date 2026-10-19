@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แบบทดสอบไล่วิชา 01204212</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&display=swap');
+        
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        .question-block {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 8px;
+            border: 1px solid #eaeaea;
+            transition: border-color 0.3s;
+        }
+        .question-text {
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        .options {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .option-label {
+            display: block;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .option-label:hover {
+            background-color: #f0f7ff;
+            border-color: #3498db;
+        }
+        .option-label.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .option-label.disabled:hover {
+            background-color: #fff;
+            border-color: #ddd;
+        }
+        input[type="radio"] {
+            margin-right: 10px;
+            cursor: inherit;
+        }
+        #score-display {
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+            border-bottom: 2px solid #ecf0f1;
+            margin-bottom: 20px;
+            z-index: 100;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        #result-container {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #27ae60;
+            display: none;
+            padding: 20px;
+            background: #e8f8f5;
+            border-radius: 8px;
+        }
+        .explanation {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #e8f8f5;
+            border-left: 5px solid #1abc9c;
+            border-radius: 4px;
+            font-size: 0.95em;
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .correct { color: #27ae60; font-weight: bold; }
+        .incorrect { color: #e74c3c; font-weight: bold; }
+        /* ปรับขอบด้านซ้ายของข้อสอบให้หนาขึ้นเตรียมรับสี */
+.question-block {
+    border-left: 5px solid #bdc3c7; 
+}
+
+/* ชุดสีแยกตามบทเรียน */
+.chapter-7 { border-left-color: #2ecc71; background-color: #f9fdfa; } /* ต้นไม้ - เขียว */
+.chapter-8 { border-left-color: #3498db; background-color: #f9fbfe; } /* กราฟ - ฟ้า */
+.chapter-9 { border-left-color: #9b59b6; background-color: #fcf9fd; } /* การค้นหา - ม่วง */
+.chapter-10 { border-left-color: #e67e22; background-color: #fefaf6; } /* การจัดเรียง - ส้ม */
+.chapter-11 { border-left-color: #e74c3c; background-color: #fdf7f7; } /* ประสิทธิภาพ - แดง */
+.chapter-12 { border-left-color: #34495e; background-color: #f8f9f9; } /* หัวข้อเฉพาะ - กรมท่า */        
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>แบบทดสอบ 01204212<br><span style="font-size: 0.6em; color: #7f8c8d;">ชนิดข้อมูลนามธรรมและการแก้ปัญหา</span></h1>
+    <div id="score-display">ทำไปแล้ว: 0 / 100 ข้อ | คะแนน: 0</div>
+    <div id="quiz-container"></div>
+    <div id="result-container"></div>
+</div>
+
+<script>
+    // ข้อมูลข้อสอบทั้งหมดที่หนูเตรียมไว้ให้ก่อนหน้านี้
+const quizData = [
+    { id: 1, question: "1. โหนดแรกสุดของต้นไม้ซึ่งมีค่า Indegree เท่ากับ 0 เรียกว่าอะไร", options: [{value: "A", text: "ก. Leaf"}, {value: "B", text: "ข. Root"}, {value: "C", text: "ค. Subtree"}, {value: "D", text: "ง. Sibling"}], correctAnswer: "B", explanation: "Root คือโหนดแรกสุด มีได้เพียงโหนดเดียวในต้นไม้หนึ่งต้น และไม่มีเส้นเชื่อมชี้เข้าหา" },
+    { id: 2, question: "2. โหนดที่มีค่า Outdegree เท่ากับ 0 คือโหนดประเภทใด", options: [{value: "A", text: "ก. Root"}, {value: "B", text: "ข. Leaf"}, {value: "C", text: "ค. Parent"}, {value: "D", text: "ง. Internal node"}], correctAnswer: "B", explanation: "Leaf คือโหนดที่ไม่มีลูกเลย ส่วน Internal node คือโหนดที่ไม่ใช่รากและไม่ใช่ใบ" },
+    { id: 3, question: "3. ต้นไม้ที่มีโหนดทั้งหมด N โหนด จะมีเส้นเชื่อม (Edge) กี่เส้น", options: [{value: "A", text: "ก. 2N"}, {value: "B", text: "ข. N-1"}, {value: "C", text: "ค. N+1"}, {value: "D", text: "ง. N"}], correctAnswer: "B", explanation: "ทุกโหนดยกเว้นรากมีเส้นเชื่อมชี้เข้าหาหนึ่งเส้นพอดี จึงได้ N-1 เส้นเสมอ ใช้ตรวจความถูกต้องของต้นไม้ได้" },
+    { id: 4, question: "4. ข้อใดไม่ใช่คุณสมบัติของโครงสร้างข้อมูลแบบต้นไม้", options: [{value: "A", text: "ก. มีรากเพียงโหนดเดียว"}, {value: "B", text: "ข. มีเส้นทางจากรากไปยังโหนดใด ๆ เพียงเส้นทางเดียว"}, {value: "C", text: "ค. มีวงรอบ (Cycle) ได้"}, {value: "D", text: "ง. ไม่มีวงรอบ"}], correctAnswer: "C", explanation: "ถ้ามีวงรอบจะกลายเป็นกราฟ ไม่ใช่ต้นไม้ และจะทำให้มีเส้นทางไปยังบางโหนดมากกว่าหนึ่งเส้นทาง" },
+    { id: 5, question: "5. โหนดที่มีพ่อแม่คนเดียวกันเรียกว่าอะไร", options: [{value: "A", text: "ก. Ancestor"}, {value: "B", text: "ข. Descendant"}, {value: "C", text: "ค. Sibling"}, {value: "D", text: "ง. Subtree"}], correctAnswer: "C", explanation: "Sibling คือพี่น้อง ส่วน Ancestor คือบรรพบุรุษ และ Descendant คือลูกหลาน" },
+    { id: 6, question: "6. Degree (Outdegree) ของโหนดหนึ่ง ๆ หมายถึงอะไร", options: [{value: "A", text: "ก. ความยาวของเส้นทางจากราก"}, {value: "B", text: "ข. จำนวนโหนดทั้งหมดในต้นไม้ย่อย"}, {value: "C", text: "ค. จำนวนลูกของโหนดนั้น"}, {value: "D", text: "ง. จำนวนระดับของต้นไม้"}], correctAnswer: "C", explanation: "Outdegree คือจำนวนเส้นเชื่อมที่ชี้ออกจากโหนด ซึ่งก็คือจำนวนลูกนั่นเอง" },
+    { id: 7, question: "7. ต้นไม้ไบนารี (Binary Tree) กำหนดว่าแต่ละโหนดมีลูกได้มากที่สุดกี่โหนด", options: [{value: "A", text: "ก. 1"}, {value: "B", text: "ข. 3"}, {value: "C", text: "ค. 2"}, {value: "D", text: "ง. ไม่จำกัด"}], correctAnswer: "C", explanation: "Binary Tree คือต้นไม้ที่ทุกโหนดมี Outdegree ไม่เกิน 2 คือมีลูกซ้ายและลูกขวาได้อย่างมากข้างละหนึ่ง" },
+    { id: 8, question: "8. ต้นไม้ไบนารีที่มีความสูง h = 3 (นับแบบจำนวนเส้นเชื่อม) มีโหนดได้มากที่สุดกี่โหนด", options: [{value: "A", text: "ก. 8"}, {value: "B", text: "ข. 7"}, {value: "C", text: "ค. 31"}, {value: "D", text: "ง. 15"}], correctAnswer: "D", explanation: "ใช้สูตร 2^(h+1) - 1 = 2^4 - 1 = 15 โหนด" },
+    { id: 9, question: "9. จำนวนโหนดสูงสุดที่อยู่ในระดับ (Level) ที่ 3 ของต้นไม้ไบนารีคือเท่าใด", options: [{value: "A", text: "ก. 8"}, {value: "B", text: "ข. 16"}, {value: "C", text: "ค. 4"}, {value: "D", text: "ง. 7"}], correctAnswer: "A", explanation: "จำนวนโหนดสูงสุดในระดับที่ l เท่ากับ 2^l ดังนั้น 2^3 = 8" },
+    { id: 10, question: "10. ต้นไม้ไบนารีที่มี n โหนด จะมีลิงก์ที่เป็นค่าว่าง (null link) กี่ลิงก์", options: [{value: "A", text: "ก. 2n"}, {value: "B", text: "ข. n+1"}, {value: "C", text: "ค. n"}, {value: "D", text: "ง. n-1"}], correctAnswer: "B", explanation: "แต่ละโหนดมีลิงก์ 2 เส้น รวม 2n เส้น โดยมี n-1 เส้นที่ใช้เชื่อมโหนดจริง จึงเหลือค่าว่าง 2n - (n-1) = n+1" },
+    { id: 11, question: "11. เมื่อเก็บต้นไม้ไบนารีด้วยอาร์เรย์โดยรากอยู่ที่ตำแหน่งที่ 1 ลูกซ้ายของ A[i] อยู่ที่ตำแหน่งใด", options: [{value: "A", text: "ก. A[i/2]"}, {value: "B", text: "ข. A[2i]"}, {value: "C", text: "ค. A[2i+1]"}, {value: "D", text: "ง. A[i+1]"}], correctAnswer: "B", explanation: "ลูกซ้ายอยู่ที่ 2i ลูกขวาอยู่ที่ 2i+1 และพ่อแม่อยู่ที่ i หาร 2 ปัดทิ้งเศษ" },
+    { id: 12, question: "12. เมื่อเก็บต้นไม้ไบนารีด้วยอาร์เรย์โดยรากอยู่ที่ตำแหน่งที่ 1 พ่อแม่ของ A[10] อยู่ที่ตำแหน่งใด", options: [{value: "A", text: "ก. A[5]"}, {value: "B", text: "ข. A[20]"}, {value: "C", text: "ค. A[11]"}, {value: "D", text: "ง. A[9]"}], correctAnswer: "A", explanation: "พ่อแม่อยู่ที่ตำแหน่ง i หาร 2 ปัดทิ้งเศษ ดังนั้น 10/2 = 5" },
+    { id: 13, question: "13. Nearly Complete Binary Tree มีลักษณะอย่างไร", options: [{value: "A", text: "ก. ทุกโหนดมีลูกเพียงหนึ่งโหนด"}, {value: "B", text: "ข. เต็มทุกระดับยกเว้นระดับสุดท้าย และระดับสุดท้ายเรียงชิดซ้าย"}, {value: "C", text: "ค. เต็มทุกระดับโดยไม่มีข้อยกเว้น"}, {value: "D", text: "ง. มีเฉพาะกิ่งด้านขวา"}], correctAnswer: "B", explanation: "รูปแบบนี้ใช้กับโครงสร้าง Heap และเหมาะกับการเก็บด้วยอาร์เรย์เพราะไม่มีช่องว่างคั่นกลาง" },
+    { id: 14, question: "14. ต้นไม้ไบนารีมีราก A ลูกซ้ายคือ B (มีลูก D และ E) ลูกขวาคือ C (มีลูก F และ G) ผลของการท่องแบบ Preorder คือข้อใด", options: [{value: "A", text: "ก. DEBFGCA"}, {value: "B", text: "ข. DBEAFCG"}, {value: "C", text: "ค. ABCDEFG"}, {value: "D", text: "ง. ABDECFG"}], correctAnswer: "D", explanation: "Preorder ใช้ลำดับ N-L-R คือเยี่ยมโหนดปัจจุบันก่อน แล้วจึงลงซ้ายและขวา" },
+    { id: 15, question: "15. จากต้นไม้ต้นเดียวกัน (ราก A, ลูกซ้าย B มีลูก D E, ลูกขวา C มีลูก F G) ผลของการท่องแบบ Inorder คือข้อใด", options: [{value: "A", text: "ก. ABDECFG"}, {value: "B", text: "ข. ABCDEFG"}, {value: "C", text: "ค. DBEAFCG"}, {value: "D", text: "ง. DEBFGCA"}], correctAnswer: "C", explanation: "Inorder ใช้ลำดับ L-N-R คือลงซ้ายให้สุดก่อน เยี่ยมโหนดปัจจุบัน แล้วจึงไปขวา" },
+    { id: 16, question: "16. จากต้นไม้ต้นเดียวกัน ผลของการท่องแบบ Postorder คือข้อใด", options: [{value: "A", text: "ก. DBEAFCG"}, {value: "B", text: "ข. DEBFGCA"}, {value: "C", text: "ค. ABDECFG"}, {value: "D", text: "ง. ABCDEFG"}], correctAnswer: "B", explanation: "Postorder ใช้ลำดับ L-R-N คือลงซ้ายและขวาให้เสร็จก่อน จึงเยี่ยมโหนดปัจจุบันเป็นตัวสุดท้าย" },
+    { id: 17, question: "17. การท่องต้นไม้แบบ Breadth-first (เชิงกว้าง) ต้องใช้โครงสร้างข้อมูลใดช่วย", options: [{value: "A", text: "ก. สแตก (Stack)"}, {value: "B", text: "ข. อาร์เรย์ 2 มิติ"}, {value: "C", text: "ค. คิว (Queue)"}, {value: "D", text: "ง. ลิงก์ลิสต์วงกลม"}], correctAnswer: "C", explanation: "คิวทำให้ได้ลำดับทีละระดับตามหลัก FIFO ส่วนการท่องเชิงลึกใช้สแตกหรือการเรียกซ้ำ" },
+    { id: 18, question: "18. ผลของการท่องแบบ Inorder ในต้นไม้ค้นหาแบบไบนารี (BST) มีลักษณะอย่างไร", options: [{value: "A", text: "ก. เรียงตามลำดับที่แทรกเข้ามา"}, {value: "B", text: "ข. เรียงจากน้อยไปมากเสมอ"}, {value: "C", text: "ค. เรียงจากมากไปน้อยเสมอ"}, {value: "D", text: "ง. ไม่มีลำดับที่แน่นอน"}], correctAnswer: "B", explanation: "เพราะซ้ายน้อยกว่าและขวามากกว่าโหนดปัจจุบัน การท่องแบบ L-N-R จึงหยิบค่าน้อยที่สุดขึ้นมาก่อนเสมอ ใช้ตรวจความถูกต้องของ BST ได้" },
+    { id: 19, question: "19. ในการลบโหนดของ BST ที่มีต้นไม้ย่อยทั้งด้านซ้ายและขวา ควรนำค่าใดขึ้นมาแทนที่", options: [{value: "A", text: "ก. ค่าน้อยที่สุดของต้นไม้ย่อยด้านซ้าย"}, {value: "B", text: "ข. ค่ามากที่สุดของต้นไม้ย่อยด้านขวา"}, {value: "C", text: "ค. ค่ามากที่สุดของต้นไม้ย่อยด้านซ้าย"}, {value: "D", text: "ง. ค่าของโหนดราก"}], correctAnswer: "C", explanation: "ค่านั้นมากกว่าทุกค่าในต้นไม้ย่อยซ้าย และยังน้อยกว่าทุกค่าในต้นไม้ย่อยขวา จึงรักษาคุณสมบัติ BST ไว้ได้" },
+    { id: 20, question: "20. การท่องต้นไม้นิพจน์ (Expression Tree) แบบ Postorder จะได้นิพจน์ในรูปแบบใด", options: [{value: "A", text: "ก. Prefix"}, {value: "B", text: "ข. Parenthetical"}, {value: "C", text: "ค. Postfix"}, {value: "D", text: "ง. Infix"}], correctAnswer: "C", explanation: "Preorder ให้ Prefix, Inorder ให้ Infix และ Postorder ให้ Postfix ซึ่งตรงกับเนื้อหาบทที่ 5" },
+    { id: 21, question: "21. โครงสร้างข้อมูลแบบกราฟประกอบด้วยองค์ประกอบหลักสองอย่างคืออะไร", options: [{value: "A", text: "ก. Front และ Rear"}, {value: "B", text: "ข. Head และ Tail"}, {value: "C", text: "ค. Root และ Leaf"}, {value: "D", text: "ง. Vertex และ Edge"}], correctAnswer: "D", explanation: "Vertex คือโหนด และ Edge คือเส้นเชื่อมระหว่างโหนด" },
+    { id: 22, question: "22. Directed Graph (Digraph) แตกต่างจาก Undirected Graph อย่างไร", options: [{value: "A", text: "ก. ไม่มีวงรอบ"}, {value: "B", text: "ข. มีจำนวนโหนดมากกว่า"}, {value: "C", text: "ค. เส้นเชื่อมมีทิศทางกำกับ"}, {value: "D", text: "ง. ทุกเส้นเชื่อมมีน้ำหนัก"}], correctAnswer: "C", explanation: "ใน Digraph เส้นเชื่อมเรียกว่า Arc และเดินได้ทางเดียวตามทิศ ส่วน Undirected Graph เรียกว่า Edge เดินได้สองทาง" },
+    { id: 23, question: "23. โหนด X และ Y จะ Adjacent กันเมื่อใด", options: [{value: "A", text: "ก. เมื่อ X และ Y มีน้ำหนักเท่ากัน"}, {value: "B", text: "ข. เมื่อ X และ Y อยู่ในกราฟเดียวกัน"}, {value: "C", text: "ค. เมื่อมีเส้นทางจาก X ไป Y ผ่านโหนดอื่น"}, {value: "D", text: "ง. เมื่อมี Edge เชื่อมระหว่าง X และ Y โดยตรง"}], correctAnswer: "D", explanation: "Adjacent หมายถึงติดกันโดยตรง ถ้าต้องผ่านโหนดอื่นจะเรียกว่ามี Path ไม่ใช่ Adjacent" },
+    { id: 24, question: "24. Path ในกราฟหมายถึงอะไร", options: [{value: "A", text: "ก. ลำดับของ Vertex ที่เชื่อมต่อกัน"}, {value: "B", text: "ข. กราฟย่อยที่ไม่มีวงรอบ"}, {value: "C", text: "ค. เส้นเชื่อมที่มีน้ำหนักน้อยที่สุด"}, {value: "D", text: "ง. โหนดที่ไม่มีเส้นเชื่อม"}], correctAnswer: "A", explanation: "เช่น (A, B, C, D) คือเส้นทางที่เดินจาก A ผ่าน B และ C ไปยัง D" },
+    { id: 25, question: "25. Cycle ในกราฟต้องประกอบด้วย Vertex อย่างน้อยกี่โหนด", options: [{value: "A", text: "ก. 3"}, {value: "B", text: "ข. 4"}, {value: "C", text: "ค. 2"}, {value: "D", text: "ง. 1"}], correctAnswer: "A", explanation: "Cycle คือ Path ที่มีจุดเริ่มต้นและจุดสิ้นสุดเป็นโหนดเดียวกัน โดยต้องมีอย่างน้อย 3 โหนด" },
+    { id: 26, question: "26. Strongly Connected Graph มีลักษณะอย่างไร", options: [{value: "A", text: "ก. ทุก Edge มีน้ำหนักเท่ากัน"}, {value: "B", text: "ข. มีอย่างน้อย 2 Vertex ทีมี Path ทิศทางเดียว"}, {value: "C", text: "ค. ทุกคู่ของ Vertex มี Path ถึงกันได้ทั้งไปและกลับ"}, {value: "D", text: "ง. มีอย่างน้อย 2 Vertex ที่ไม่มี Path ถึงกัน"}], correctAnswer: "C", explanation: "ถ้าเชื่อมถึงกันได้เพียงทิศทางเดียวจะเรียกว่า Weakly Connected" },
+    { id: 27, question: "27. Disjoint Graph หมายถึงกราฟแบบใด", options: [{value: "A", text: "ก. กราฟที่ไม่มีวงรอบ"}, {value: "B", text: "ข. กราฟที่ทุกโหนดเชื่อมถึงกันหมด"}, {value: "C", text: "ค. กราฟที่มีอย่างน้อย 2 Vertex ที่ไม่มี Path ถึงกันทั้งสองทิศทาง"}, {value: "D", text: "ง. กราฟที่มี Edge น้อยกว่าจำนวน Vertex"}], correctAnswer: "C", explanation: "กราฟประเภทนี้แยกออกเป็นส่วน ๆ ที่ไม่ติดต่อกัน" },
+    { id: 28, question: "28. การท่องกราฟแบบ Depth-first Traversal ต้องใช้โครงสร้างข้อมูลใดช่วย", options: [{value: "A", text: "ก. ต้นไม้ค้นหา"}, {value: "B", text: "ข. สแตก (Stack)"}, {value: "C", text: "ค. คิว (Queue)"}, {value: "D", text: "ง. อาร์เรย์ 2 มิติ"}], correctAnswer: "B", explanation: "สแตกทำให้เดินลงลึกให้สุดก่อนแล้วย้อนกลับ หรือจะเขียนแบบเรียกซ้ำซึ่งอาศัยสแตกของระบบก็ได้" },
+    { id: 29, question: "29. การท่องกราฟแบบ Breadth-first Traversal ต้องใช้โครงสร้างข้อมูลใดช่วย", options: [{value: "A", text: "ก. คิว (Queue)"}, {value: "B", text: "ข. ลิงก์ลิสต์วงกลม"}, {value: "C", text: "ค. สแตก (Stack)"}, {value: "D", text: "ง. ต้นไม้ไบนารี"}], correctAnswer: "A", explanation: "คิวทำให้เยี่ยมโหนดทีละระดับจากจุดเริ่มต้นออกไปเป็นวงกว้าง" },
+    { id: 30, question: "30. กราฟไม่มีทิศทางมีเส้นเชื่อม A-B, A-C, B-D, C-D, D-E เริ่มท่องที่ A แบบ Breadth-first โดยเลือกเพื่อนบ้านตามลำดับตัวอักษร จะได้ลำดับใด", options: [{value: "A", text: "ก. ACDBE"}, {value: "B", text: "ข. ABCDE"}, {value: "C", text: "ค. ABDEC"}, {value: "D", text: "ง. ABDCE"}], correctAnswer: "B", explanation: "เยี่ยม A แล้วนำ B, C เข้าคิว เยี่ยม B นำ D เข้าคิว เยี่ยม C (D อยู่ในคิวแล้ว) เยี่ยม D นำ E เข้าคิว แล้วจึงเยี่ยม E" },
+    { id: 31, question: "31. จากกราฟเดียวกัน ถ้าท่องแบบ Depth-first ด้วยวิธีเรียกซ้ำ โดยเลือกเพื่อนบ้านตามลำดับตัวอักษร จะได้ลำดับใด", options: [{value: "A", text: "ก. ABDCE"}, {value: "B", text: "ข. ACDBE"}, {value: "C", text: "ค. ABCDE"}, {value: "D", text: "ง. ADBCE"}], correctAnswer: "A", explanation: "เยี่ยม A ลงลึกที่ B ลงลึกที่ D ที่ D เลือก C ก่อน E ตามตัวอักษร C ไม่มีเพื่อนบ้านใหม่ ย้อนกลับมาเยี่ยม E" },
+    { id: 32, question: "32. การเก็บกราฟด้วย Adjacency Matrix ใช้เนื้อที่เท่าใด เมื่อกราฟมี V โหนด", options: [{value: "A", text: "ก. O(E)"}, {value: "B", text: "ข. O(V)"}, {value: "C", text: "ค. O(V²)"}, {value: "D", text: "ง. O(V+E)"}], correctAnswer: "C", explanation: "ต้องจองตาราง V x V เสมอ ไม่ว่าจะมีเส้นเชื่อมจริงกี่เส้น" },
+    { id: 33, question: "33. การเก็บกราฟด้วย Adjacency List เหมาะกับกราฟประเภทใดมากที่สุด", options: [{value: "A", text: "ก. กราฟหนาแน่นที่มีเส้นเชื่อมเกือบครบทุกคู่"}, {value: "B", text: "ข. กราฟที่ไม่มีน้ำหนัก"}, {value: "C", text: "ค. กราฟที่ต้องตรวจสอบว่าสองโหนดติดกันหรือไม่บ่อยมาก"}, {value: "D", text: "ง. กราฟเบาบาง (Sparse Graph) ที่มีเส้นเชื่อมน้อย"}], correctAnswer: "D", explanation: "Adjacency List ใช้เนื้อที่ O(V + E) จึงประหยัดกว่ามากเมื่อเส้นเชื่อมน้อย ส่วนการตรวจว่าสองโหนดติดกันหรือไม่ Matrix จะเร็วกว่าคือ O(1)" },
+    { id: 34, question: "34. ใน Adjacency Matrix ของกราฟไม่มีทิศทาง ค่า M[i][j] เท่ากับ 1 หมายความว่าอย่างไร", options: [{value: "A", text: "ก. โหนด i มีน้ำหนักเท่ากับ 1"}, {value: "B", text: "ข. โหนด i อยู่ในระดับที่ 1"}, {value: "C", text: "ค. มีเส้นทางจาก i ไป j ผ่าน 1 โหนด"}, {value: "D", text: "ง. มีเส้นเชื่อมระหว่างโหนด i กับโหนด j"}], correctAnswer: "D", explanation: "ค่า 1 แปลว่าติดกันโดยตรง และในกราฟไม่มีทิศทาง เมทริกซ์จะสมมาตร คือ M[i][j] เท่ากับ M[j][i] เสมอ" },
+    { id: 35, question: "35. Network ในบริบทของโครงสร้างข้อมูลแบบกราฟหมายถึงอะไร", options: [{value: "A", text: "ก. กราฟที่ทุกโหนดเชื่อมถึงกันหมด"}, {value: "B", text: "ข. กราฟที่ทุก Edge มีค่าน้ำหนัก (Weight) กำกับ"}, {value: "C", text: "ค. กราฟที่มีทิศทางทุกเส้นเชื่อม"}, {value: "D", text: "ง. กราฟที่ไม่มีวงรอบ"}], correctAnswer: "B", explanation: "ความหมายของน้ำหนักขึ้นกับการใช้งาน เช่น ระยะทาง เวลา หรือค่าใช้จ่าย" },
+    { id: 36, question: "36. Spanning Tree ของกราฟหนึ่งหมายถึงอะไร", options: [{value: "A", text: "ก. เส้นทางที่สั้นที่สุดระหว่างสองโหนด"}, {value: "B", text: "ข. กราฟย่อยที่มีวงรอบ"}, {value: "C", text: "ค. ต้นไม้ที่ประกอบด้วยทุก Vertex ในกราฟนั้น"}, {value: "D", text: "ง. ต้นไม้ที่มีน้ำหนักรวมมากที่สุด"}], correctAnswer: "C", explanation: "กราฟหนึ่งอาจมี Spanning Tree ได้มากกว่าหนึ่งแบบ ซึ่งแต่ละแบบมีน้ำหนักรวมต่างกัน" },
+    { id: 37, question: "37. Minimum Spanning Tree (MST) คืออะไร", options: [{value: "A", text: "ก. Spanning Tree ที่มีจำนวนเส้นเชื่อมน้อยที่สุด"}, {value: "B", text: "ข. Spanning Tree ที่มีผลรวมของน้ำหนักทั้งหมดน้อยที่สุด"}, {value: "C", text: "ค. เส้นทางที่สั้นที่สุดจากโหนดต้นทางไปทุกโหนด"}, {value: "D", text: "ง. ต้นไม้ที่มีความสูงน้อยที่สุด"}], correctAnswer: "B", explanation: "ใช้ออกแบบการวางสายเคเบิลให้เชื่อมทุกจุดโดยใช้สายรวมน้อยที่สุด" },
+    { id: 38, question: "38. ข้อใดอธิบายความแตกต่างระหว่าง Minimum Spanning Tree กับ Shortest Path ได้ถูกต้อง", options: [{value: "A", text: "ก. MST ทำให้น้ำหนักรวมของทั้งเครือข่ายน้อยที่สุด ส่วน Shortest Path ทำให้ระยะจากต้นทางไปยังแต่ละปลายทางน้อยที่สุด"}, {value: "B", text: "ข. ทั้งสองอย่างให้ผลลัพธ์เหมือนกันเสมอ"}, {value: "C", text: "ค. MST ใช้ได้เฉพาะกราฟมีทิศทาง ส่วน Shortest Path ใช้ได้เฉพาะกราฟไม่มีทิศทาง"}, {value: "D", text: "ง. MST ต้องมีจุดเริ่มต้น ส่วน Shortest Path ไม่ต้องมี"}], correctAnswer: "A", explanation: "เป้าหมายต่างกัน จึงอาจได้ชุดเส้นเชื่อมคนละชุด" },
+    { id: 39, question: "39. Sequential Search ใช้ได้กับข้อมูลลักษณะใด", options: [{value: "A", text: "ก. ข้อมูลทุกแบบ ไม่ว่าจะเรียงลำดับหรือไม่"}, {value: "B", text: "ข. ข้อมูลที่เรียงลำดับแล้วเท่านั้น"}, {value: "C", text: "ค. ข้อมูลที่เก็บในอาร์เรย์เท่านั้น"}, {value: "D", text: "ง. ข้อมูลที่เป็นตัวเลขเท่านั้น"}], correctAnswer: "A", explanation: "นี่คือข้อได้เปรียบหลักของ Sequential Search แม้จะช้ากว่าวิธีอื่น แต่ใช้ได้เสมอโดยไม่มีเงื่อนไข" },
+    { id: 40, question: "40. ประสิทธิภาพของ Sequential Search ในกรณีแย่ที่สุดเป็นเท่าใด", options: [{value: "A", text: "ก. O(n²)"}, {value: "B", text: "ข. O(n)"}, {value: "C", text: "ค. O(1)"}, {value: "D", text: "ง. O(log n)"}], correctAnswer: "B", explanation: "กรณีแย่ที่สุดคือค่าที่ค้นอยู่ตัวสุดท้ายหรือไม่มีอยู่เลย ต้องเปรียบเทียบครบทั้ง n ตัว" },
+    { id: 41, question: "41. อาร์เรย์ [21, 6, 14, 72, 39, 8, 45] ถ้าใช้ Sequential Search ค้นหาค่า 39 จะเปรียบเทียบกี่ครั้ง", options: [{value: "A", text: "ก. 6"}, {value: "B", text: "ข. 4"}, {value: "C", text: "ค. 3"}, {value: "D", text: "ง. 5"}], correctAnswer: "D", explanation: "ต้องเทียบกับ 21, 6, 14, 72 ก่อน แล้วจึงเจอ 39 ที่ดัชนีที่ 4 รวมเป็นการเปรียบเทียบ 5 ครั้ง" },
+    { id: 42, question: "42. เทคนิค Sentinel Search ทำสิ่งใด", options: [{value: "A", text: "ก. แบ่งข้อมูลออกเป็นสองส่วนแล้วค้นหาทีละครึ่ง"}, {value: "B", text: "ข. เรียงข้อมูลก่อนแล้วจึงค้นหา"}, {value: "C", text: "ค. สลับข้อมูลที่ค้นเจอขึ้นมาข้างหน้าหนึ่งตำแหน่ง"}, {value: "D", text: "ง. นำค่าที่ต้องการค้นหาไปวางไว้ที่ตำแหน่ง last + 1 เพื่อให้ลูปเหลือเงื่อนไขเดียว"}], correctAnswer: "D", explanation: "การรับประกันว่าต้องเจอแน่นอน ทำให้ไม่ต้องตรวจว่าหมดอาร์เรย์หรือยัง จึงลดงานต่อรอบลงครึ่งหนึ่ง" },
+    { id: 43, question: "43. Sentinel Search ส่งผลต่อประสิทธิภาพอย่างไร", options: [{value: "A", text: "ก. ยังเป็น O(n) เหมือนเดิม แต่ลดงานที่ทำในแต่ละรอบ"}, {value: "B", text: "ข. เพิ่มขึ้นเป็น O(n²)"}, {value: "C", text: "ค. ลดลงเหลือ O(1)"}, {value: "D", text: "ง. ลดลงเหลือ O(log n)"}], correctAnswer: "A", explanation: "เทคนิคนี้ไม่เปลี่ยนอัตราการเติบโต เพียงแต่ลดจำนวนการตรวจเงื่อนไขจากสองครั้งเหลือหนึ่งครั้งต่อรอบ" },
+    { id: 44, question: "44. Probability Search มีหลักการทำงานอย่างไร", options: [{value: "A", text: "ก. เรียงข้อมูลตามความน่าจะเป็นก่อนค้นหา"}, {value: "B", text: "ข. สุ่มเลือกตำแหน่งที่จะเริ่มค้นหา"}, {value: "C", text: "ค. ค้นหาจากตำแหน่งกลางของอาร์เรย์เสมอ"}, {value: "D", text: "ง. ทุกครั้งที่ค้นเจอ ให้สลับข้อมูลนั้นขึ้นมาข้างหน้าหนึ่งตำแหน่ง"}], correctAnswer: "D", explanation: "ข้อมูลที่ถูกค้นบ่อยจะค่อย ๆ ลอยขึ้นมาอยู่ต้นอาร์เรย์เอง เหมาะกับงานที่มีการค้นซ้ำ ๆ" },
+    { id: 45, question: "45. Ordered List Search สรุปได้ว่าไม่พบข้อมูลเมื่อใด", options: [{value: "A", text: "ก. เมื่อถึงตำแหน่งกึ่งกลางของอาร์เรย์"}, {value: "B", text: "ข. เมื่อพบค่าที่มากกว่าค่าที่ต้องการค้นหาเป็นครั้งแรก"}, {value: "C", text: "ค. เมื่อดูครบทุกตัวในอาร์เรย์แล้ว"}, {value: "D", text: "ง. เมื่อพบค่าที่น้อยกว่าค่าที่ต้องการ"}], correctAnswer: "B", explanation: "เพราะข้อมูลเรียงจากน้อยไปมาก ตัวที่เหลือข้างหลังย่อมมากกว่าทั้งหมด จึงหยุดได้ทันที" },
+    { id: 46, question: "46. เงื่อนไขบังคับของการใช้ Binary Search คืออะไร", options: [{value: "A", text: "ก. ข้อมูลต้องเป็นจำนวนเต็ม"}, {value: "B", text: "ข. ข้อมูลต้องเก็บในลิงก์ลิสต์"}, {value: "C", text: "ค. ข้อมูลต้องมีจำนวนเป็นเลขคู่"}, {value: "D", text: "ง. ข้อมูลต้องเรียงลำดับไว้แล้ว"}], correctAnswer: "D", explanation: "ถ้าข้อมูลไม่เรียงลำดับ การตัดสินใจว่าจะไปครึ่งซ้ายหรือครึ่งขวาจะไม่มีความหมาย" },
+    { id: 47, question: "47. อาร์เรย์เรียงลำดับ [2, 5, 8, 12, 16, 23, 38, 56, 72, 91] ใช้ Binary Search ค้นหาค่า 23 จะเปรียบเทียบกี่ครั้ง", options: [{value: "A", text: "ก. 2"}, {value: "B", text: "ข. 3"}, {value: "C", text: "ค. 4"}, {value: "D", text: "ง. 5"}], correctAnswer: "B", explanation: "รอบที่ 1 mid = 4 ได้ 16 ไปขวา รอบที่ 2 mid = 7 ได้ 56 ไปซ้าย รอบที่ 3 mid = 5 ได้ 23 พอดี" },
+    { id: 48, question: "48. จากอาร์เรย์เดียวกัน ใช้ Binary Search ค้นหาค่า 91 จะเปรียบเทียบกี่ครั้ง", options: [{value: "A", text: "ก. 4"}, {value: "B", text: "ข. 10"}, {value: "C", text: "ค. 3"}, {value: "D", text: "ง. 5"}], correctAnswer: "A", explanation: "ค่า 91 อยู่ตัวสุดท้าย ต้องเดินไปทางขวาตลอด ผ่าน mid ที่ค่า 16, 56, 72 แล้วจึงเจอ 91 รวม 4 ครั้ง" },
+    { id: 49, question: "49. ใน Binary Search ค่า mid คำนวณอย่างไร และต้องคำนวณเมื่อใด", options: [{value: "A", text: "ก. mid = (first + last) / 2 คำนวณครั้งเดียวตอนเริ่มต้น"}, {value: "B", text: "ข. mid = (first + last) / 2 ปัดทิ้งเศษ และต้องคำนวณใหม่ทุกรอบ"}, {value: "C", text: "ค. mid = last / 2 คำนวณใหม่ทุกรอบ"}, {value: "D", text: "ง. mid = first + 1 คำนวณใหม่ทุกรอบ"}], correctAnswer: "B", explanation: "จุดที่นิสิตมักพลาดคือลืมคำนวณ mid ใหม่ในแต่ละรอบหลังจากขยับ first หรือ last แล้ว" },
+    { id: 50, question: "50. ถ้าข้อมูลมี 1,000,000 ตัว Binary Search ต้องเปรียบเทียบมากที่สุดประมาณกี่ครั้ง", options: [{value: "A", text: "ก. ประมาณ 1,000 ครั้ง"}, {value: "B", text: "ข. ประมาณ 1,000,000 ครั้ง"}, {value: "C", text: "ค. ประมาณ 500,000 ครั้ง"}, {value: "D", text: "ง. ประมาณ 20 ครั้ง"}], correctAnswer: "D", explanation: "เพราะตัดข้อมูลทิ้งครึ่งหนึ่งทุกรอบ จำนวนรอบจึงเท่ากับ log2(1,000,000) ซึ่งประมาณ 20" },
+    { id: 51, question: "51. การค้นหาใน Binary Search Tree ในกรณีแย่ที่สุดมีประสิทธิภาพเท่าใด", options: [{value: "A", text: "ก. O(n)"}, {value: "B", text: "ข. O(n log n)"}, {value: "C", text: "ค. O(1)"}, {value: "D", text: "ง. O(log n)"}], correctAnswer: "A", explanation: "เมื่อข้อมูลเข้ามาแบบเรียงลำดับแล้ว ต้นไม้จะกลายเป็น Skewed Tree ซึ่งมีประสิทธิภาพเท่าลิงก์ลิสต์" },
+    { id: 52, question: "52. AVL Tree แตกต่างจาก Binary Search Tree ธรรมดาอย่างไร", options: [{value: "A", text: "ก. ใช้อาร์เรย์เก็บข้อมูลแทนพอยน์เตอร์"}, {value: "B", text: "ข. ไม่ต้องเรียงลำดับข้อมูลซ้ายขวา"}, {value: "C", text: "ค. อนุญาตให้แต่ละโหนดมีลูกได้มากกว่า 2 โหนด"}, {value: "D", text: "ง. บังคับให้ทุกโหนดมี Balance Factor อยู่ระหว่าง -1 ถึง 1 จึงรับประกัน O(log n) ทุกกรณี"}], correctAnswer: "D", explanation: "การรักษาสมดุลทำให้ความสูงของต้นไม้ไม่เกินประมาณ log n เสมอ แลกกับงานส่วนเกินในการหมุน" },
+    { id: 53, question: "53. ค่า Balance Factor ของโหนดหนึ่งคำนวณจากอะไร", options: [{value: "A", text: "ก. จำนวนโหนดด้านซ้าย ลบด้วยจำนวนโหนดด้านขวา"}, {value: "B", text: "ข. ความสูงของต้นไม้ย่อยด้านซ้าย ลบด้วยความสูงของต้นไม้ย่อยด้านขวา"}, {value: "C", text: "ค. ค่าของโหนดซ้าย ลบด้วยค่าของโหนดขวา"}, {value: "D", text: "ง. ความสูงของต้นไม้ทั้งหมด ลบด้วยระดับของโหนดนั้น"}], correctAnswer: "B", explanation: "ถ้าผลลัพธ์เป็น +2 หรือ -2 แสดงว่าเสียสมดุล ต้องหมุนเพื่อแก้ทันที" },
+    { id: 54, question: "54. โหนดหนึ่งใน AVL Tree มี Balance Factor เท่ากับ +2 และลูกซ้ายมี Balance Factor เท่ากับ +1 ต้องแก้ด้วยวิธีใด", options: [{value: "A", text: "ก. หมุนขวาหนึ่งครั้ง (กรณี Left-Left)"}, {value: "B", text: "ข. หมุนขวาแล้วหมุนซ้าย (กรณี Right-Left)"}, {value: "C", text: "ค. หมุนซ้ายแล้วหมุนขวา (กรณี Left-Right)"}, {value: "D", text: "ง. หมุนซ้ายหนึ่งครั้ง (กรณี Right-Right)"}], correctAnswer: "A", explanation: "ค่า +2 บอกว่าหนักทางซ้าย และลูกซ้ายที่เป็น +1 บอกว่าหนักทางซ้ายอีก จึงเป็นกรณี LL ที่แก้ด้วยการหมุนครั้งเดียว" },
+    { id: 55, question: "55. กรณี Left-Right ของ AVL Tree ต้องหมุนกี่ครั้ง", options: [{value: "A", text: "ก. ไม่ต้องหมุน"}, {value: "B", text: "ข. 2 ครั้ง"}, {value: "C", text: "ค. 1 ครั้ง"}, {value: "D", text: "ง. 3 ครั้ง"}], correctAnswer: "B", explanation: "เทคนิคจำ: ตัวอักษรเหมือนกัน (LL, RR) หมุนครั้งเดียว ตัวอักษรต่างกัน (LR, RL) หมุนสองครั้ง" },
+    { id: 56, question: "56. สถานการณ์ใดที่ทำให้ Binary Search Tree เสื่อมสภาพเป็น Skewed Tree", options: [{value: "A", text: "ก. ข้อมูลมีจำนวนเป็นเลขคี่"}, {value: "B", text: "ข. ข้อมูลที่แทรกเข้ามาเรียงลำดับอยู่แล้ว"}, {value: "C", text: "ค. ข้อมูลมีค่าซ้ำกันจำนวนมาก"}, {value: "D", text: "ง. ข้อมูลที่แทรกเข้ามาเป็นแบบสุ่ม"}], correctAnswer: "B", explanation: "ข้อมูลที่เรียงมาแล้วพบบ่อยมากในโลกจริง เช่น รหัสนิสิตหรือวันที่ จึงเป็นปัญหาที่ต้องแก้ด้วย AVL Tree" },
+    { id: 57, question: "57. คุณสมบัติของ Max-heap คือข้อใด", options: [{value: "A", text: "ก. ทุกโหนดในต้นไม้ย่อยซ้ายมีค่าน้อยกว่าราก"}, {value: "B", text: "ข. ค่ามากที่สุดอยู่ที่ใบด้านขวาสุด"}, {value: "C", text: "ค. ทุกใบอยู่ในระดับเดียวกันเสมอ"}, {value: "D", text: "ง. ทุกโหนดมีค่ามากกว่าหรือเท่ากับลูกหลานของตน ค่ามากที่สุดจึงอยู่ที่ราก"}], correctAnswer: "D", explanation: "Heap ไม่ใช่ BST เพราะไม่ได้บังคับว่าซ้ายน้อยกว่าขวา บังคับเพียงความสัมพันธ์ระหว่างพ่อแม่กับลูกเท่านั้น" },
+    { id: 58, question: "58. เมื่อเก็บ Heap ด้วยอาร์เรย์โดยเริ่มนับดัชนีที่ 0 ลูกซ้ายของโหนดที่ดัชนี i อยู่ที่ดัชนีใด", options: [{value: "A", text: "ก. (i-1)/2"}, {value: "B", text: "ข. i+1"}, {value: "C", text: "ค. 2i+1"}, {value: "D", text: "ง. 2i"}], correctAnswer: "C", explanation: "เมื่อเริ่มที่ดัชนี 0 ลูกซ้ายอยู่ที่ 2i + 1 ลูกขวาอยู่ที่ 2i+2 และพ่อแม่อยู่ที่ (i-1)/2" },
+    { id: 59, question: "59. Internal Sort หมายถึงอะไร", options: [{value: "A", text: "ก. การเรียงลำดับที่ข้อมูลทั้งหมดอยู่ในหน่วยความจำหลักได้พร้อมกัน"}, {value: "B", text: "ข. การเรียงลำดับที่ทำภายในฟังก์ชันเดียว"}, {value: "C", text: "ค. การเรียงลำดับที่ไม่ใช้การเปรียบเทียบ"}, {value: "D", text: "ง. การเรียงลำดับที่ต้องใช้ไฟล์ภายนอกช่วย"}], correctAnswer: "A", explanation: "ถ้าข้อมูลใหญ่เกินกว่าจะใส่หน่วยความจำหลักได้หมด ต้องใช้ External Sort ซึ่งมี Merge Sort เป็นแกนหลัก" },
+    { id: 60, question: "60. Sort Stability (ความเสถียร) หมายถึงอะไร", options: [{value: "A", text: "ก. อัลกอริทึมใช้หน่วยความจำคงที่"}, {value: "B", text: "ข. อัลกอริทึมไม่ทำให้โปรแกรมล่ม"}, {value: "C", text: "ค. อัลกอริทึมใช้เวลาเท่ากันทุกครั้งที่รัน"}, {value: "D", text: "ง. ข้อมูลที่มีคีย์เท่ากันยังคงลำดับเดิมไว้หลังเรียงเสร็จ"}], correctAnswer: "D", explanation: "สำคัญเมื่อต้องเรียงซ้อนกันหลายชั้น เช่น เรียงตามชื่อไว้แล้วนำมาเรียงตามคะแนนอีกที" },
+    { id: 61, question: "61. ข้อใดเป็นอัลกอริทึมการเรียงลำดับแบบเสถียร (Stable)", options: [{value: "A", text: "ก. Merge Sort"}, {value: "B", text: "ข. Selection Sort"}, {value: "C", text: "ค. Quick Sort"}, {value: "D", text: "ง. Heap Sort"}], correctAnswer: "A", explanation: "ที่เสถียรได้แก่ Insertion, Bubble และ Merge ส่วนที่ไม่เสถียรได้แก่ Selection, Shell, Quick และ Heap" },
+    { id: 62, question: "62. ข้อใดเป็นอัลกอริทึมการเรียงลำดับแบบไม่เสถียร (Unstable)", options: [{value: "A", text: "ก. Selection Sort"}, {value: "B", text: "ข. Insertion Sort"}, {value: "C", text: "ค. Bubble Sort"}, {value: "D", text: "ง. Merge Sort"}], correctAnswer: "A", explanation: "Selection Sort สลับข้ามตำแหน่งไกล ๆ จึงอาจทำให้ข้อมูลที่คีย์เท่ากันสลับลำดับกันได้" },
+    { id: 63, question: "63. การเรียงลำดับแบบ In-place หมายถึงอะไร", options: [{value: "A", text: "ก. เรียงโดยไม่ต้องเปรียบเทียบข้อมูล"}, {value: "B", text: "ข. เรียงข้อมูลที่อยู่ในไฟล์โดยตรง"}, {value: "C", text: "ค. เรียงในอาร์เรย์เดิม ใช้หน่วยความจำเพิ่มเป็นค่าคงที่ O(1)"}, {value: "D", text: "ง. เรียงโดยใช้อาร์เรย์ช่วยอีกหนึ่งชุด"}], correctAnswer: "C", explanation: "ในบทนี้มีเพียง Merge Sort และ Radix Sort ที่ไม่ใช่ in-place เพราะต้องจองพื้นที่เพิ่มตามขนาดข้อมูล" },
+    { id: 64, question: "64. Merge Sort ใช้หน่วยความจำเพิ่ม (Space Complexity) เท่าใด", options: [{value: "A", text: "ก. O(log n)"}, {value: "B", text: "ข. O(1)"}, {value: "C", text: "ค. O(n²)"}, {value: "D", text: "ง. O(n)"}], correctAnswer: "D", explanation: "ต้องจองอาร์เรย์ช่วยเพิ่มอีกเท่าตัวสำหรับพักข้อมูลระหว่างการรวม ซึ่งเป็นข้อเสียหลักของวิธีนี้" },
+    { id: 65, question: "65. Insertion Sort มีประสิทธิภาพในกรณีดีที่สุด (Best Case) เท่าใด และเกิดขึ้นเมื่อใด", options: [{value: "A", text: "ก. O(n²) เมื่อข้อมูลเรียงกลับด้าน"}, {value: "B", text: "ข. O(n log n) เมื่อข้อมูลเป็นแบบสุ่ม"}, {value: "C", text: "ค. O(n) เมื่อข้อมูลเรียงจากน้อยไปมากอยู่แล้ว"}, {value: "D", text: "ง. O(1) เมื่อข้อมูลมีตัวเดียว"}], correctAnswer: "C", explanation: "เมื่อข้อมูลเรียงอยู่แล้ว ลูป while จะไม่ทำงานเลย เหลือเพียงการเปรียบเทียบ n-1 ครั้ง" },
+    { id: 66, question: "66. Selection Sort มีประสิทธิภาพในกรณีดีที่สุด (Best Case) เท่าใด", options: [{value: "A", text: "ก. O(n)"}, {value: "B", text: "ข. O(n²)"}, {value: "C", text: "ค. O(log n)"}, {value: "D", text: "ง. O(n log n)"}], correctAnswer: "B", explanation: "แม้ข้อมูลจะเรียงอยู่แล้ว ก็ยังต้องสแกนหาตัวที่น้อยที่สุดในทุกรอบ ไม่มีทางลัด จำนวนการเปรียบเทียบจึงคงที่ที่ n(n-1)/2 เสมอ" },
+    { id: 67, question: "67. Bubble Sort จะมีประสิทธิภาพกรณีดีที่สุดเป็น O(n) ได้ก็ต่อเมื่อมีสิ่งใดในโค้ด", options: [{value: "A", text: "ก. การเลือก Pivot ที่เหมาะสม"}, {value: "B", text: "ข. เงื่อนไขหยุดเมื่อรอบใดไม่มีการสลับเลย"}, {value: "C", text: "ค. การเรียกซ้ำแทนการวนลูป"}, {value: "D", text: "ง. การใช้อาร์เรย์ช่วยเพิ่ม"}], correctAnswer: "B", explanation: "ถ้าไม่ใส่เงื่อนไขนี้ โปรแกรมจะทำครบ n-1 รอบเสมอ กลายเป็น O(n²) ทุกกรณี" },
+    { id: 68, question: "68. แนวคิดหลักของ Shell Sort คืออะไร", options: [{value: "A", text: "ก. เลือกตัวที่น้อยที่สุดมาวางไว้หน้าสุดทีละตัว"}, {value: "B", text: "ข. สร้าง Max-heap แล้วดึงรากออกทีละตัว"}, {value: "C", text: "ค. แบ่งข้อมูลครึ่งหนึ่งแล้วรวมกลับ"}, {value: "D", text: "ง. ทำ Insertion Sort กับข้อมูลที่ห่างกันเท่ากับ gap แล้วค่อย ๆ ลด gap ลงจนเหลือ 1"}], correctAnswer: "D", explanation: "การให้ข้อมูลกระโดดทีละหลายก้าวก่อน ทำให้ค่าที่อยู่ไกลจากตำแหน่งจริงเดินทางได้เร็วขึ้นมาก" },
+    { id: 69, question: "69. ข้อมูล [23, 78, 45, 8, 32, 56] เรียงด้วย Shell Sort ที่ gap = 3 ผลลัพธ์หลังจบรอบนี้คือข้อใด", options: [{value: "A", text: "ก. [8, 23, 32, 45, 56, 78]"}, {value: "B", text: "ข. [8, 45, 32, 23, 56, 78]"}, {value: "C", text: "ค. [8, 32, 45, 23, 78, 56]"}, {value: "D", text: "ง. [23, 78, 45, 8, 32, 56]"}], correctAnswer: "C", explanation: "แบ่งเป็น 3 กลุ่ม (23,8), (78,32) และ (45,56) เรียงในแต่ละกลุ่มได้ (8,23), (32,78) และ (45,56) ตามลำดับ" },
+    { id: 70, question: "70. ข้อมูล [23, 78, 45, 8, 32, 56] เรียงด้วย Bubble Sort รอบแรกมีการสลับกี่ครั้ง", options: [{value: "A", text: "ก. 4"}, {value: "B", text: "ข. 2"}, {value: "C", text: "ค. 3"}, {value: "D", text: "ง. 5"}], correctAnswer: "A", explanation: "สลับคู่ (78,45), (78,8), (78,32) และ (78,56) รวม 4 ครั้ง จบรอบแรกได้ [23, 45, 8, 32, 56, 78]" },
+    { id: 71, question: "71. Selection Sort กับข้อมูล n ตัว มีการสลับข้อมูล (Swap) มากที่สุดกี่ครั้ง", options: [{value: "A", text: "ก. n(n-1)/2"}, {value: "B", text: "ข. n²"}, {value: "C", text: "ค. n"}, {value: "D", text: "ง. n-1"}], correctAnswer: "D", explanation: "จุดเด่นของ Selection Sort คือจำนวนการสลับน้อยที่สุด เหมาะกับกรณีที่ต้นทุนการเขียนข้อมูลสูง" },
+    { id: 72, question: "72. ขั้นตอนแรกของ Heap Sort คืออะไร", options: [{value: "A", text: "ก. แบ่งข้อมูลออกเป็นสองส่วน"}, {value: "B", text: "ข. สร้าง Max-heap จากข้อมูลทั้งหมด"}, {value: "C", text: "ค. เรียงข้อมูลที่ห่างกันเท่ากับ gap"}, {value: "D", text: "ง. เลือกค่า Pivot"}], correctAnswer: "B", explanation: "เมื่อสร้าง Max-heap แล้ว ค่ามากที่สุดจะอยู่ที่รากเสมอ จึงหยิบออกได้ทันทีโดยไม่ต้องไล่หา" },
+    { id: 73, question: "73. ข้อมูล [23, 78, 45, 8, 32, 56] เมื่อสร้างเป็น Max-heap จะได้อาร์เรย์ใด", options: [{value: "A", text: "ก. [78, 45, 56, 8, 32, 23]"}, {value: "B", text: "ข. [78, 32, 56, 8, 23, 45]"}, {value: "C", text: "ค. [8, 23, 32, 45, 56, 78]"}, {value: "D", text: "ง. [78, 56, 45, 32, 23, 8]"}], correctAnswer: "B", explanation: "heapify จากดัชนี 2 ย้อนขึ้นไปหาดัชนี 0 ได้ราก 78 ลูกคือ 32 และ 56 โดย 32 มีลูก 8 กับ 23 และ 56 มีลูกซ้าย 45" },
+    { id: 74, question: "74. Quick Sort มีประสิทธิภาพในกรณีแย่ที่สุดเท่าใด และเกิดขึ้นเมื่อใด", options: [{value: "A", text: "ก. O(n²) เมื่อเลือก Pivot ได้แย่ เช่น เลือกตัวแรกเสมอแต่ข้อมูลเรียงมาแล้ว"}, {value: "B", text: "ข. O(log n) เมื่อข้อมูลเป็นแบบสุ่ม"}, {value: "C", text: "ค. O(n) เมื่อข้อมูลเรียงมาแล้ว"}, {value: "D", text: "ง. O(n log n) ทุกกรณี ไม่มีกรณีแย่ที่สุด"}], correctAnswer: "A", explanation: "เป็นปัญหาเดียวกับ Skewed Tree ในบทที่ 9 คือข้อมูลที่เรียงมาแล้วทำให้การแบ่งไม่สมดุล แก้ได้ด้วยการสุ่ม Pivot" },
+    { id: 75, question: "75. หลังจากทำ Partition ครั้งหนึ่งใน Quick Sort ค่า Pivot จะอยู่ในตำแหน่งใด", options: [{value: "A", text: "ก. ตำแหน่งสุดท้ายที่ถูกต้องของมัน ไม่ต้องยุ่งอีกเลย"}, {value: "B", text: "ข. ตำแหน่งกึ่งกลางของอาร์เรย์เสมอ"}, {value: "C", text: "ค. ตำแหน่งสุดท้ายของอาร์เรย์เสมอ"}, {value: "D", text: "ง. ตำแหน่งแรกของอาร์เรย์เสมอ"}], correctAnswer: "A", explanation: "นี่คือจุดแข็งของ Quick Sort ทุกครั้งที่แบ่ง จะมีข้อมูลอย่างน้อยหนึ่งตัวเข้าที่ถาวร" },
+    { id: 76, question: "76. Merge Sort มีประสิทธิภาพในกรณีแย่ที่สุดเท่าใด", options: [{value: "A", text: "ก. O(log n)"}, {value: "B", text: "ข. O(n)"}, {value: "C", text: "ค. O(n²)"}, {value: "D", text: "ง. O(n log n)"}], correctAnswer: "D", explanation: "ไม่ขึ้นกับลักษณะของข้อมูลเลย เพราะแบ่งครึ่งตามตำแหน่ง ไม่ใช่ตามค่า จึงรับประกันได้ทุกกรณี" },
+    { id: 77, question: "77. อัลกอริทึมใดให้ทั้งประสิทธิภาพ O(n log n) ที่รับประกันได้ และเป็น In-place พร้อมกัน", options: [{value: "A", text: "ก. Heap Sort"}, {value: "B", text: "ข. Insertion Sort"}, {value: "C", text: "ค. Quick Sort"}, {value: "D", text: "ง. Merge Sort"}], correctAnswer: "A", explanation: "Merge Sort รับประกัน O(n log n) แต่ไม่ In-place ส่วน Quick Sort In-place แต่กรณีแย่ที่สุดเป็น O(n²)" },
+    { id: 78, question: "78. Radix Sort จัดเป็นการเรียงลำดับประเภทใด", options: [{value: "A", text: "ก. ใช้การเปรียบเทียบแบบแลกเปลี่ยน"}, {value: "B", text: "ข. ใช้การเปรียบเทียบแบบเลือก"}, {value: "C", text: "ค. ใช้การเปรียบเทียบแบบแบ่งครึ่ง"}, {value: "D", text: "ง. ไม่ใช้การเปรียบเทียบ (Non-comparison-based)"}], correctAnswer: "D", explanation: "Radix Sort แจกข้อมูลลงถังตามค่าประจำหลัก จึงทะลุขีดจำกัด O(n log n) ของวิธีที่ใช้การเปรียบเทียบได้" },
+    { id: 79, question: "79. ฟังก์ชัน f(n) ในการวิเคราะห์ประสิทธิภาพของอัลกอริทึมหมายถึงอะไร", options: [{value: "A", text: "ก. จำนวนบรรทัดของโค้ด"}, {value: "B", text: "ข. เวลาที่ใช้จริงเป็นวินาที"}, {value: "C", text: "ค. จำนวนหน่วยความจำที่ใช้เป็นไบต์"}, {value: "D", text: "ง. จำนวนรอบที่อัลกอริทึมต้องทำงานเมื่อมีข้อมูล n ตัว"}], correctAnswer: "D", explanation: "f(n) วัดจากจำนวนรอบ จึงไม่ขึ้นกับความเร็วของเครื่องหรือภาษาที่ใช้" },
+    { id: 80, question: "80. เกณฑ์การวัดประสิทธิภาพข้อใดที่ไม่ขึ้นกับเครื่องคอมพิวเตอร์ที่ใช้", options: [{value: "A", text: "ก. จำนวนรอบของการประมวลผล"}, {value: "B", text: "ข. ปริมาณหน่วยความจำที่ใช้ขณะประมวลผล"}, {value: "C", text: "ค. เวลาที่ใช้ประมวลผลจริง"}, {value: "D", text: "ง. ความยากง่ายของการเขียนโปรแกรม"}], correctAnswer: "A", explanation: "เวลาจริงขึ้นกับเครื่อง ภาษา คอมไพเลอร์ และงานอื่นที่รันอยู่ จึงเปรียบเทียบข้ามระบบไม่ได้" },
+    { id: 81, question: "81. อัลกอริทึม sum = (1+n)*n/2 มีค่า f(n) เท่าใด", options: [{value: "A", text: "ก. n-1"}, {value: "B", text: "ข. n"}, {value: "C", text: "ค. 1"}, {value: "D", text: "ง. n/2"}], correctAnswer: "C", explanation: "ไม่ว่าข้อมูลจะมีกี่ตัว อัลกอริทึมนี้ก็ประมวลผลเพียงรอบเดียวเสมอ จึงเป็น O(1)" },
+    { id: 82, question: "82. ลูป i = 1; while (i<=n) { ... i=i+2; } มีค่า f(n) เท่าใด", options: [{value: "A", text: "ก. n/2"}, {value: "B", text: "ข. log2 n"}, {value: "C", text: "ค. n²"}, {value: "D", text: "ง. n"}], correctAnswer: "A", explanation: "ตัวนับเพิ่มทีละ 2 จึงวนประมาณครึ่งหนึ่งของ n แต่ Big-O ยังคงเป็น O(n) เพราะตัดค่าคงที่ทิ้ง" },
+    { id: 83, question: "83. ลูป j = 1; while (j<=n) { ... j=j*2; } มีค่า f(n) เท่าใด", options: [{value: "A", text: "ก. n/2"}, {value: "B", text: "ข. 2n"}, {value: "C", text: "ค. log2 n"}, {value: "D", text: "ง. n"}], correctAnswer: "C", explanation: "ตัวนับเพิ่มแบบทวีคูณ จำนวนรอบจึงเท่ากับจำนวนครั้งที่คุณ 2 จนถึง n ซึ่งคือ log2 n" },
+    { id: 84, question: "84. ลูปซ้อนสองชั้นที่แต่ละชั้นวน n รอบ และลูปในไม่ขึ้นกับลูปนอก มีค่า f(n) เท่าใด", options: [{value: "A", text: "ก. n log n"}, {value: "B", text: "ข. n/2"}, {value: "C", text: "ค. n²"}, {value: "D", text: "ง. 2n"}], correctAnswer: "C", explanation: "เรียกว่า Quadratic Loop จำนวนรอบรวมเท่ากับจำนวนรอบลูปนอกคูณจำนวนรอบลูปใน จึงได้ n²" },
+    { id: 85, question: "85. ลูปซ้อนที่ลูปนอกวน n รอบ และลูปในวนตั้งแต่ 1 ถึงค่าของตัวนับลูปนอก (Dependent Quadratic) มีค่า f(n) เท่าใด", options: [{value: "A", text: "ก. 2^n"}, {value: "B", text: "ข. n²"}, {value: "C", text: "ค. n log2 n"}, {value: "D", text: "ง. n(n+1)/2"}], correctAnswer: "D", explanation: "ผลรวม 1 + 2 + 3 + ... + n ซึ่งใช้สูตรของเกาส์ได้ และมี Big-O เป็น O(n²)" },
+    { id: 86, question: "86. ลูปที่เป็น Linear Loop ซ้อนกับ Logarithmic Loop มีค่า f(n) เท่าใด", options: [{value: "A", text: "ก. n+log2 n"}, {value: "B", text: "ข. n²"}, {value: "C", text: "ค. n log2 n"}, {value: "D", text: "ง. log2 n"}], correctAnswer: "C", explanation: "ลูปในไม่ขึ้นกับลูปนอก ให้นำจำนวนรอบของทั้งสองชั้นมาคูณกัน จึงได้ n log2 n" },
+    { id: 87, question: "87. กฎการหา Big-O จาก f(n) มีสองขั้นตอนคือข้อใด", options: [{value: "A", text: "ก. ตัดสัมประสิทธิ์ของทุกเทอมทิ้ง แล้วเลือกเทอมที่ใหญ่ที่สุด"}, {value: "B", text: "ข. บวกทุกเทอมเข้าด้วยกัน แล้วหารด้วยจำนวนเทอม"}, {value: "C", text: "ค. เลือกเทอมที่เล็กที่สุด แล้วคูณด้วยสัมประสิทธิ์"}, {value: "D", text: "ง. แปลงทุกเทอมเป็นลอการิทึม แล้วรวมกัน"}], correctAnswer: "A", explanation: "เพราะเมื่อ n มีค่ามาก เทอมที่ใหญ่ที่สุดจะกลบเทอมอื่นจนหมด และค่าคงที่ไม่เปลี่ยนอัตราการเติบโต" },
+    { id: 88, question: "88. f(n) = 3n^4 + 2n^2 + n มี Big-O เท่าใด", options: [{value: "A", text: "ก. O(n^4)"}, {value: "B", text: "ข. O(n)"}, {value: "C", text: "ค. O(n²)"}, {value: "D", text: "ง. O(3n^4)"}], correctAnswer: "A", explanation: "ตัดสัมประสิทธิ์ทิ้งได้ n^4 + n² + n แล้วเลือกเทอมที่ใหญ่ที่สุดคือ n^4" },
+    { id: 89, question: "89. f(n) = 6 + 9n มี Big-O เท่าใด", options: [{value: "A", text: "ก. O(9n)"}, {value: "B", text: "ข. O(1)"}, {value: "C", text: "ค. O(n)"}, {value: "D", text: "ง. O(n²)"}], correctAnswer: "C", explanation: "ตัดสัมประสิทธิ์และค่าคงที่ทิ้ง เหลือเทอมที่ใหญ่ที่สุดคือ n" },
+    { id: 90, question: "90. ข้อใดเรียงลำดับ Big-O จากประสิทธิภาพสูงสุดไปต่ำสุดได้ถูกต้อง", options: [{value: "A", text: "ก. O(1), O(log n), O(n), O(n log n), O(n²), O(2^n), O(n!)"}, {value: "B", text: "ข. O(1), O(n), O(log n), O(n²), O(n log n), O(n!), O(2^n)"}, {value: "C", text: "ค. O(n!), O(2^n), O(n²), O(n log n), O(n), O(log n), O(1)"}, {value: "D", text: "ง. O(log n), O(1), O(n log n), O(n), O(n²), O(2^n), O(n!)"}], correctAnswer: "A", explanation: "เมื่อ n มีค่ามาก ลำดับการเติบโตจะเป็นไปตามตัวเลือกแรกเสมอ" },
+    { id: 91, question: "91. f(n) = log3 n มี Big-O เท่าใด", options: [{value: "A", text: "ก. O(n)"}, {value: "B", text: "ข. O(3n)"}, {value: "C", text: "ค. O(log n)"}, {value: "D", text: "ง. O(log n)"}], correctAnswer: "C", explanation: "ลอการิทึมฐานใดก็ตามถือเป็น O(log n) เหมือนกัน เพราะต่างกันเพียงค่าคงที่" },
+    { id: 92, question: "92. หากคอมพิวเตอร์ทำงานได้ 1 ล้านครั้งต่อวินาที อัลกอริทึม O(n²) ที่ประมวลผลข้อมูล 1,000,000 ตัว จะใช้เวลาประมาณเท่าใด", options: [{value: "A", text: "ก. ประมาณ 1 ชั่วโมง"}, {value: "B", text: "ข. ประมาณ 20 วินาที"}, {value: "C", text: "ค. ประมาณ 1 วินาที"}, {value: "D", text: "ง. ประมาณ 11.6 วัน"}], correctAnswer: "D", explanation: "n² = 10^12 ครั้ง หารด้วย 10^6 ครั้งต่อวินาที ได้ 10^6 วินาที ซึ่งประมาณ 11.6 วัน เทียบกับ O(n log n) ที่ใช้เพียงประมาณ 20 วินาที" },
+    { id: 93, question: "93. อัลกอริทึมหนึ่งประมวลผลข้อมูล 4,096 ตัวใช้เวลา 512 ms และประมวลผล 16,384 ตัวใช้เวลา 8,192 ms จงหา Big-O", options: [{value: "A", text: "ก. O(n log n)"}, {value: "B", text: "ข. O(n)"}, {value: "C", text: "ค. O(n²)"}, {value: "D", text: "ง. O(log n)"}], correctAnswer: "C", explanation: "ข้อมูลเพิ่ม 4 เท่า เวลาเพิ่ม 16 เท่า จึงได้ k = log 16 / log 4 = 2 หมายถึง O(n²)" },
+    { id: 94, question: "94. ข้อใดไม่ใช่เสาหลักของ Computational Thinking", options: [{value: "A", text: "ก. Abstraction"}, {value: "B", text: "ข. Decomposition"}, {value: "C", text: "ค. Pattern Recognition"}, {value: "D", text: "ง. Compilation"}], correctAnswer: "D", explanation: "เสาหลักทั้งสี่คือ Decomposition, Pattern Recognition, Abstraction และ Algorithm Design" },
+    { id: 95, question: "95. Decomposition ในการคิดเชิงคำนวณหมายถึงอะไร", options: [{value: "A", text: "ก. การเขียนขั้นตอนการแก้ปัญหาเป็น flowchart"}, {value: "B", text: "ข. การแตกปัญหาใหญ่ที่ซับซ้อนออกเป็นปัญหาย่อยที่แก้ไขได้"}, {value: "C", text: "ค. การมองหารูปแบบที่ซ้ำกันระหว่างปัญหา"}, {value: "D", text: "ง. การตัดรายละเอียดที่ไม่จำเป็นออก"}], correctAnswer: "B", explanation: "เมื่อแก้ปัญหาย่อยได้ ก็นำวิธีแก้นั้นไปประกอบเป็นคำตอบของปัญหาใหญ่ได้" },
+    { id: 96, question: "96. Abstraction ในการคิดเชิงคำนวณหมายถึงอะไร", options: [{value: "A", text: "ก. การเขียนโปรแกรมด้วยภาษาระดับสูง"}, {value: "B", text: "ข. การทำซ้ำขั้นตอนเดิมหลายครั้ง"}, {value: "C", text: "ค. การโฟกัสเฉพาะส่วนที่สำคัญ และตัดรายละเอียดที่ไม่จำเป็นทิ้ง"}, {value: "D", text: "ง. การแตกปัญหาออกเป็นส่วนย่อย"}], correctAnswer: "C", explanation: "ตัวอย่างเช่น การมองแผนที่จริงให้เป็นกราฟ โดยเก็บเพียงทางแยก เส้นถนน และระยะทาง" },
+    { id: 97, question: "97. Binary Search และ Merge Sort ใช้กระบวนทัศน์การออกแบบอัลกอริทึมแบบใด", options: [{value: "A", text: "ก. Dynamic Programming"}, {value: "B", text: "ข. Greedy"}, {value: "C", text: "ค. Brute Force"}, {value: "D", text: "ง. Divide and Conquer"}], correctAnswer: "D", explanation: "ทั้งสองอัลกอริทึมแบ่งปัญหาออกเป็นส่วนย่อย แก้แต่ละส่วน แล้วจึงรวมคำตอบกลับ" },
+    { id: 98, question: "98. ประเทศหนึ่งมีเหรียญ 1, 3 และ 4 บาท ถ้าใช้กลยุทธ์ Greedy ทอนเงิน 6 บาท จะใช้เหรียญกี่เหรียญ และคำตอบที่ดีที่สุดคือกี่เหรียญ", options: [{value: "A", text: "ก. Greedy ใช้ 4 เหรียญ แต่คำตอบที่ดีที่สุดคือ 3 เหรียญ"}, {value: "B", text: "ข. Greedy ใช้ 3 เหรียญ แต่คำตอบที่ดีที่สุดคือ 2 เหรียญ"}, {value: "C", text: "ค. ทั้งสองวิธีใช้ 3 เหรียญเท่ากัน"}, {value: "D", text: "ง. Greedy ใช้ 2 เหรียญ ซึ่งเป็นคำตอบที่ดีที่สุดแล้ว"}], correctAnswer: "B", explanation: "Greedy หยิบ 4 ก่อน เหลือ 2 จึงต้องใช้ 1+1 รวมเป็น 3 เหรียญ แต่คำตอบที่ดีที่สุดคือ 3+3 เพียง 2 เหรียญ แสดงว่า Greedy ไม่รับประกันคำตอบที่ดีที่สุดเสมอ" },
+    { id: 99, question: "99. Dynamic Programming แก้ปัญหาความช้าของการหา Fibonacci แบบเรียกซ้ำตรง ๆ ได้อย่างไร", options: [{value: "A", text: "ก. แบ่งข้อมูลออกเป็นครึ่งหนึ่งในทุกขั้น"}, {value: "B", text: "ข. ลดจำนวนกรณีฐานลงเหลือหนึ่งกรณี"}, {value: "C", text: "ค. เปลี่ยนไปใช้การเรียกซ้ำแบบสองทาง"}, {value: "D", text: "ง. เก็บคำตอบของปัญหาย่อยที่คำนวณแล้วไว้ใช้ซ้ำ จึงไม่ต้องคำนวณซ้ำ"}], correctAnswer: "D", explanation: "เปลี่ยนจาก O(2^n) เป็น O(n) ได้ แลกกับหน่วยความจำที่ใช้เก็บคำตอบ" },
+    { id: 100, question: "100. อัลกอริทึม Dijkstra สำหรับหาเส้นทางที่สั้นที่สุด ใช้กระบวนทัศน์แบบใด", options: [{value: "A", text: "ก. Greedy"}, {value: "B", text: "ข. Brute Force"}, {value: "C", text: "ค. Dynamic Programming"}, {value: "D", text: "ง. Backtracking"}], correctAnswer: "A", explanation: "ในแต่ละรอบจะเลือกโหนดที่มีระยะทางน้อยที่สุดที่ยังไม่ยืนยันมายืนยันก่อน ซึ่งเป็นการตัดสินใจที่ดีที่สุด ณ ขณะนั้น" }
+];
+
+    const quizContainer = document.getElementById("quiz-container");
+    const resultContainer = document.getElementById("result-container");
+    const scoreDisplay = document.getElementById("score-display");
+
+    let currentScore = 0;
+    let answeredCount = 0;
+
+    // ฟังก์ชันสร้าง UI ของแบบทดสอบ
+    function renderQuiz() {
+        // อัปเดตตัวเลขแสดงจำนวนข้อรวม
+        scoreDisplay.innerHTML = `ทำไปแล้ว: 0 / ${quizData.length} ข้อ | คะแนน: 0`;
+
+        quizData.forEach((q) => {
+            const questionBlock = document.createElement("div");
+            questionBlock.className = "question-block";
+            questionBlock.id = `question-block-${q.id}`;
+
+            const questionText = document.createElement("div");
+            questionText.className = "question-text";
+            questionText.textContent = q.question;
+            questionBlock.appendChild(questionText);
+
+            const optionsList = document.createElement("ul");
+            optionsList.className = "options";
+
+            q.options.forEach(opt => {
+                const li = document.createElement("li");
+                const label = document.createElement("label");
+                label.className = "option-label";
+                label.id = `label-${q.id}-${opt.value}`;
+                
+                const input = document.createElement("input");
+                input.type = "radio";
+                input.name = `question${q.id}`;
+                input.value = opt.value;
+                
+                // เพิ่ม Event Listener เพื่อให้ตรวจทันทีที่รุ่นพี่คลิกเลือก
+                input.addEventListener('change', function() {
+                    checkAnswer(q.id, this.value);
+                });
+
+                label.appendChild(input);
+                label.appendChild(document.createTextNode(opt.text));
+                li.appendChild(label);
+                optionsList.appendChild(li);
+            });
+
+            questionBlock.appendChild(optionsList);
+
+            // พื้นที่สำหรับแสดงเฉลย
+            const explanationDiv = document.createElement("div");
+            explanationDiv.className = "explanation";
+            explanationDiv.id = `explanation-${q.id}`;
+            questionBlock.appendChild(explanationDiv);
+
+            quizContainer.appendChild(questionBlock);
+        });
+    }
+
+    // ฟังก์ชันตรวจคำตอบทันทีที่เลือก
+    function checkAnswer(questionId, selectedValue) {
+        const q = quizData.find(item => item.id === questionId);
+        const explanationDiv = document.getElementById(`explanation-${questionId}`);
+        const block = document.getElementById(`question-block-${questionId}`);
+        const selectedLabel = document.getElementById(`label-${questionId}-${selectedValue}`);
+        
+        explanationDiv.style.display = "block"; // แสดงคำอธิบาย
+
+        if (selectedValue === q.correctAnswer) {
+            currentScore++;
+            explanationDiv.innerHTML = `<span class="correct">✓ ถูกต้องค่ะ!</span><br><strong>คำอธิบาย:</strong> ${q.explanation}`;
+            block.style.borderColor = "#27ae60";
+            explanationDiv.style.borderLeftColor = "#27ae60";
+            explanationDiv.style.backgroundColor = "#e8f8f5";
+            selectedLabel.style.backgroundColor = "#e8f8f5";
+            selectedLabel.style.borderColor = "#27ae60";
+        } else {
+            explanationDiv.innerHTML = `<span class="incorrect">✗ ตอบผิดค่ะ</span> (คำตอบที่ถูกคือตัวเลือก ${q.correctAnswer})<br><strong>คำอธิบาย:</strong> ${q.explanation}`;
+            block.style.borderColor = "#e74c3c";
+            explanationDiv.style.borderLeftColor = "#e74c3c";
+            explanationDiv.style.backgroundColor = "#fdf2e9";
+            selectedLabel.style.backgroundColor = "#fdf2e9";
+            selectedLabel.style.borderColor = "#e74c3c";
+            
+            // ไฮไลต์คำตอบที่ถูกต้องให้เห็นด้วย
+            const correctLabel = document.getElementById(`label-${questionId}-${q.correctAnswer}`);
+            if (correctLabel) {
+                correctLabel.style.borderColor = "#27ae60";
+                correctLabel.style.fontWeight = "bold";
+                correctLabel.style.color = "#27ae60";
+            }
+        }
+        
+        // นับข้อที่ทำไปแล้วและอัปเดตกระดานคะแนน
+        answeredCount++;
+        scoreDisplay.innerHTML = `ทำไปแล้ว: ${answeredCount} / ${quizData.length} ข้อ | คะแนน: ${currentScore}`;
+
+        // ปิดไม่ให้แก้ไขคำตอบในข้อนี้อีก
+        const inputs = document.getElementsByName(`question${questionId}`);
+        inputs.forEach(input => {
+            input.disabled = true;
+            document.getElementById(`label-${questionId}-${input.value}`).classList.add("disabled");
+        });
+
+        // ตรวจสอบว่าทำครบทุกข้อหรือยัง
+        if (answeredCount === quizData.length) {
+            resultContainer.style.display = "block";
+            resultContainer.innerHTML = `🎉 เยี่ยมมากเลยค่ะรุ่นพี่! ทำข้อสอบครบแล้ว<br>ได้คะแนนรวม ${currentScore} / ${quizData.length} คะแนนค่ะ`;
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+    }
+
+    // เริ่มต้นแสดงแบบทดสอบ
+    renderQuiz();
+</script>
+
+</body>
+</html>
